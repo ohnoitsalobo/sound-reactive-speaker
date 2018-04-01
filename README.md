@@ -1,2 +1,3 @@
-# ESP8266
-My ESP8266 code
+# Sound reactive speaker
+
+This code runs using the Arduino core on Espressif ESP32.
