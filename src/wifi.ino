@@ -2,8 +2,8 @@
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
-const char* ssid = "linksys1";
-const char* password = "9182736450";
+const char* ssid = "your_ssid_here";
+const char* password = "your_password_here";
 
 // #define BLYNK_PRINT Serial
 // #define BLYNK_USE_DIRECT_CONNECT
