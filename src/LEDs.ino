@@ -1,3 +1,12 @@
+// for ESP32, the official FastLED library can crash
+// when calling FastLED.show() while connected to Wifi.
+// Something to do with interrupts. this project uses the library at 
+// https://github.com/samguyer/FastLED
+// which has better timing, preventing crashing
+
+// most of the code here is lifted from
+// https://github.com/FastLED/FastLED/tree/master/examples/DemoReel100
+
 // #define FASTLED_ALLOW_INTERRUPTS 0
 // #define FASTLED_INTERRUPT_RETRY_COUNT 0
 #include <FastLED.h>
@@ -11,13 +20,13 @@ FASTLED_USING_NAMESPACE
 #define BRIGHTNESS  255
 #define FRAMES_PER_SECOND  120
 
-CRGBArray<NUM_LEDS> leds;
-CRGBSet LEFT  (leds (0,            NUM_LEDS/2-1)   );
-CRGBSet RIGHT (leds (NUM_LEDS/2,   NUM_LEDS)       );
-CRGBSet L1    (leds (0,            NUM_LEDS/4-1)   );
-CRGBSet L2    (leds (NUM_LEDS/4,   NUM_LEDS/2-1)   );
-CRGBSet R1    (leds (NUM_LEDS/2,   3*NUM_LEDS/4-1) );
-CRGBSet R2    (leds (3*NUM_LEDS/4, NUM_LEDS)       );
+CRGBArray<NUM_LEDS> leds;                              // LED array containing all LEDs
+CRGBSet LEFT  (leds (0,            NUM_LEDS/2-1)   );  // < subset containing only left  LEDs
+CRGBSet RIGHT (leds (NUM_LEDS/2,   NUM_LEDS)       );  // < subset containing only right LEDs
+CRGBSet L1    (leds (0,            NUM_LEDS/4-1)   );  // < subset containing only left  side of left  LEDs
+CRGBSet L2    (leds (NUM_LEDS/4,   NUM_LEDS/2-1)   );  // < subset containing only right side of left  LEDs
+CRGBSet R1    (leds (NUM_LEDS/2,   3*NUM_LEDS/4-1) );  // < subset containing only left  side of right LEDs
+CRGBSet R2    (leds (3*NUM_LEDS/4, NUM_LEDS)       );  // < subset containing only right side of right LEDs
 CHSV manualColor(0, 255, 255);
 
 CRGBPalette16 currentPalette, randomPalette1;
@@ -85,14 +94,6 @@ void nextPattern()
         gCurrentPatternNumber = (gCurrentPatternNumber + 1) % ARRAY_SIZE( gPatterns );
     else
         gCurrentPatternNumber = (gCurrentPatternNumber + 1) % ARRAY_SIZE( gPatterns1);
-
-    // if(gCurrentPatternNumber == 3 || gCurrentPatternNumber == 4 || gCurrentPatternNumber == 5)
-        // FastLED.setBrightness(60);
-    // else
-        // FastLED.setBrightness(25);
-    
-    // Serial1.print("\ngCurrentPatternNumber = ");
-    // Serial1.println(gCurrentPatternNumber);
 }
 
 
@@ -104,16 +105,12 @@ void simplePattern0(){ // frequencies in sequence one LED at a time
     FastLED.show();
 }
 
-void simplePattern1(){ // frequencies in sequence one LED at a time
+void simplePattern1(){
     for(int i = 0; i < NUM_LEDS/4; i++){
         // int pos = i/2.35; 
         int pos = i/1.4; 
-        float left  = Lpeak[pos] / MAX; // left =  left *2 - left *left /255;
-        float right = Rpeak[pos] / MAX; // right = right*2 - right*right/255;
-        // L1[i]              = CHSV( 224*i/(NUM_LEDS/4.0), 255, (Lpeak[pos] / MAX * 255));
-        // R1[i]              = CHSV( 224*i/(NUM_LEDS/4.0), 255, (Rpeak[pos] / MAX * 255));
-        // L2[NUM_LEDS/4-i]   = CHSV( 224*i/(NUM_LEDS/4.0), 255, (Lpeak[pos] / MAX * 255));
-        // R2[NUM_LEDS/4-i]   = CHSV( 224*i/(NUM_LEDS/4.0), 255, (Rpeak[pos] / MAX * 255));
+        float left  = Lpeak[pos] / MAX;left =  left *2 - left *left /255;
+        float right = Rpeak[pos] / MAX; right = right*2 - right*right/255;
         L1[i]              = CHSV( 224*i/(NUM_LEDS/4.0), 255, left  * 255.0);
         R1[i]              = CHSV( 224*i/(NUM_LEDS/4.0), 255, right * 255.0);
         L2[NUM_LEDS/4-i]   = CHSV( 224*i/(NUM_LEDS/4.0), 255, left  * 255.0);
@@ -123,7 +120,7 @@ void simplePattern1(){ // frequencies in sequence one LED at a time
     FastLED.show();
 }
 
-void simplePattern2(){ // frequencies in sequence one LED at a time
+void simplePattern2(){
     for(int i = 0; i < NUM_LEDS/2; i++){
         leds[i]            = CHSV( i/33.0*224, 255, (Lpeak[i/3] / MAX * 255));
         leds[i+NUM_LEDS/2] = CHSV( i/33.0*224, 255, (Rpeak[i/3] / MAX * 255));
@@ -131,7 +128,7 @@ void simplePattern2(){ // frequencies in sequence one LED at a time
     FastLED.show();
 }
 
-void simplePattern3(){ // frequencies in sequence one LED at a time
+void simplePattern3(){
     for(int i = 0; i < NUM_LEDS/2; i++){
         leds[i]            = CHSV( i/33.0*224, 255, (Lpeak[i/3] / MAX * 255));
         leds[i+NUM_LEDS/2] = CHSV( i/33.0*224, 255, (Rpeak[i/3] / MAX * 255));
