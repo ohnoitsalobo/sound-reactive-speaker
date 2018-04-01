@@ -12,7 +12,7 @@ const char* password = "your_password_here";
 #else
     #include <BlynkSimpleEsp32.h>
 #endif
-char auth[] = "a002108cd44b4d9a97b171f8be4d68fb";
+char auth[] = "your_blynk_auth_token_here";
 
 void setupWiFi(){
     wifiScan();
